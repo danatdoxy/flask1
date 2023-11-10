@@ -13,15 +13,18 @@ logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
 @app.route('/', methods=['POST'])
 def handle_request():
-    logging.info('Handling request')
+    logging.info('Handling request. my sig:')
+    logging.info(secret)
     inbound_data = SlackRequestData(request.form, request.headers)
     # The body of the request needs to be obtained from request.get_data() or similar
     body = request.get_data(as_text=True)  # Get the raw body of the request
     # print(inbound_data.to_dict())
 
     logging.info('Sending payload to Verifying signature')
+    logging.info('x-slack-signature: ' + inbound_data.signature)
     # Pass the secret, the inbound_data object, and the raw body to the verification function
     if not verify_slack_signature(secret, inbound_data, body):
+        logging.info('Signature verification failed')
         abort(403)  # Forbidden if the signature verification fails
 
     # Handle the slash command
