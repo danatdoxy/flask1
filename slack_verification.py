@@ -4,10 +4,8 @@ import hmac
 import time
 import logging
 from my_classes import SlackRequestData
-def logging_setup():
-    logger = logging.getLogger()
-    logger.setLevel(logging.INFO)
-    return logger
+logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+
 def verify_slack_signature(slack_signing_secret, request_data, body):
     """
     Verify the signature of a Slack request using the provided signing secret.

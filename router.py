@@ -5,10 +5,8 @@ from my_classes import SlackRequestData
 import logging
 
 
-def logging_setup():
-    logger = logging.getLogger()
-    logger.setLevel(logging.INFO)
-    return logger
+logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+
 
 def handle_slash_command():
     # Parse the incoming JSON from the Slack command

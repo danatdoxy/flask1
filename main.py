@@ -8,10 +8,8 @@ import logging
 app = Flask(__name__)
 secret = os.environ.get('slack_signing_secret')
 
-def logging_setup():
-    logger = logging.getLogger()
-    logger.setLevel(logging.INFO)
-    return logger
+logging.basicConfig(stream=sys.stdout, level=logging.INFO)
+
 @app.route('/', methods=['POST'])
 def handle_request():
     logging.info('Handling request')
