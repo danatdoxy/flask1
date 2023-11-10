@@ -1,37 +1,42 @@
 from flask import Flask, jsonify, request
 import os
+from router import handle_slash_command
 
 app = Flask(__name__)
 
+class SlackRequestData:
+    def __init__(self, request_data):
+        self.timestamp = request_data.get('headers', {}).get('x-slack-request-timestamp')
+        self.signature = request_data.get('headers', {}).get('x-slack-signature')
+        self.response_url = request_data.get('body', {}).get('response_url')
+        self.text = request_data.get('body', {}).get('text')
+        self.command = request_data.get('body', {}).get('command')
+        self.user_id = request_data.get('body', {}).get('user_id')
+        self.channel_id = request_data.get('body', {}).get('channel_id')
+        self.channel_name = request_data.get('body', {}).get('channel_name')
+        self.team_id = request_data.get('body', {}).get('team_id')
+        self.trigger_id = request_data.get('body', {}).get('trigger_id')
+        self.token = request_data.get('body', {}).get('token')
+
+    def to_dict(self):
+        return {
+            'x-slack-request-timestamp': self.timestamp,
+            'x-slack-signature': self.signature,
+            'response_url': self.response_url,
+            'text': self.text,
+            'command': self.command,
+            'user_id': self.user_id,
+            'channel_id': self.channel_id,
+            'channel_name': self.channel_name,
+            'team_id': self.team_id,
+            'trigger_id': self.trigger_id,
+            'token': self.token,
+        }
+
 
 @app.route('/', methods=['POST'])
-def handle_slash_command():
-    # Parse the incoming JSON from the Slack command
-    data = request.form
-    command = data.get('command')
-    user_name = data.get('user_name')
-    text = data.get('text')
 
-    # Handle /summarize command
-    if command == '/summarize':
-        # This is where you would implement your summarization logic
-        response_text = f"Summarization requested by {user_name}. You asked to summarize: {text}"
-
-    # Handle /test command
-    elif command == '/test':
-        response_text = f"Test command received from {user_name}."
-
-    else:
-        response_text = f"The command {command} is not recognized."
-
-    # Prepare the response for Slack
-    response = {
-        "response_type": "in_channel",  # or "ephemeral" for a private message
-        "text": response_text,
-    }
-
-    return jsonify(response)
-
+handle_slash_command()
 
 @app.route('/')
 def index():
