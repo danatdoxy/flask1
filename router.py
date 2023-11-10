@@ -4,6 +4,7 @@ from flask import Flask, jsonify, request
 from my_classes import SlackRequestData
 import logging
 
+
 def logging_setup():
     logger = logging.getLogger()
     logger.setLevel(logging.INFO)

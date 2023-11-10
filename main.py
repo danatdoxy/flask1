@@ -16,14 +16,16 @@ def logging_setup():
 def handle_request():
     logging.info('Handling request')
     inbound_data = SlackRequestData(request.form, request.headers)
-    print(inbound_data.to_dict())
+    # The body of the request needs to be obtained from request.get_data() or similar
+    body = request.get_data(as_text=True)  # Get the raw body of the request
+    # print(inbound_data.to_dict())
 
-    # Verify the Slack request signature
     logging.info('Sending payload to Verifying signature')
-    if not verify_slack_signature(secret, inbound_data):
+    # Pass the secret, the inbound_data object, and the raw body to the verification function
+    if not verify_slack_signature(secret, inbound_data, body):
         abort(403)  # Forbidden if the signature verification fails
 
-    #handle_slash_command(inbound_data)
+    # Handle the slash command
     return jsonify({"status": "success"})
 
 @app.route('/')
