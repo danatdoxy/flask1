@@ -9,10 +9,12 @@ secret = os.environ.get('slack_signing_secret')
 
 @app.route('/', methods=['POST'])
 def handle_request():
+    print('Handling request')
     inbound_data = SlackRequestData(request.form, request.headers)
     print(inbound_data.to_dict())
 
     # Verify the Slack request signature
+    print('Sending payload to Verifying signature')
     if not verify_slack_signature(secret, inbound_data):
         abort(403)  # Forbidden if the signature verification fails
 

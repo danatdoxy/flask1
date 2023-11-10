@@ -11,14 +11,17 @@ def handle_slash_command():
 
     # Handle /summarize command
     if command == '/summarize':
+        print('Summarizing')
         # This is where you would implement your summarization logic
         response_text = f"Summarization requested by {user_id}. You asked to summarize: {user_id}"
 
     # Handle /test command
     elif command == '/test':
+        print('Testing')
         response_text = f"Test command received from {user_id}."
 
     else:
+        print('Command not recognized')
         response_text = f"The command {command} is not recognized."
 
     # Prepare the response for Slack
