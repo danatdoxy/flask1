@@ -1,22 +1,22 @@
 import os
 import json
 from flask import Flask, jsonify, request
+from my_classes import SlackRequestData
 
 def handle_slash_command():
     # Parse the incoming JSON from the Slack command
-    data = request.form
-    command = data.get('command')
-    user_name = data.get('user_name')
-    text = data.get('text')
+    command = SlackRequestData.command
+    user_id = SlackRequestData.user_id
+    text = SlackRequestData.text
 
     # Handle /summarize command
     if command == '/summarize':
         # This is where you would implement your summarization logic
-        response_text = f"Summarization requested by {user_name}. You asked to summarize: {text}"
+        response_text = f"Summarization requested by {user_id}. You asked to summarize: {user_id}"
 
     # Handle /test command
     elif command == '/test':
-        response_text = f"Test command received from {user_name}."
+        response_text = f"Test command received from {user_id}."
 
     else:
         response_text = f"The command {command} is not recognized."
