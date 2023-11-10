@@ -1,14 +1,23 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, abort
 import os
 from router import handle_slash_command
 from my_classes import SlackRequestData
+from slack_verification import verify_slack_signature
+
 app = Flask(__name__)
-
-
+secret = os.environ.get('slack_signing_secret')
 
 @app.route('/', methods=['POST'])
-inbound_data = SlackRequestData(request.form, request.headers)
-handle_slash_command(inbound_data)
+def handle_request():
+    inbound_data = SlackRequestData(request.form, request.headers)
+    print(inbound_data.to_dict())
+
+    # Verify the Slack request signature
+    if not verify_slack_signature(secret, inbound_data):
+        abort(403)  # Forbidden if the signature verification fails
+
+    #handle_slash_command(inbound_data)
+    return jsonify({"status": "success"})
 
 @app.route('/')
 def index():
