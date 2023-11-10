@@ -4,6 +4,7 @@ from router import handle_slash_command
 from my_classes import SlackRequestData
 from slack_verification import verify_slack_signature
 import logging
+import sys
 
 app = Flask(__name__)
 secret = os.environ.get('slack_signing_secret')
@@ -32,4 +33,6 @@ def index():
 
 
 if __name__ == '__main__':
+    app.logger.addHandler(logging.StreamHandler(sys.stdout))
+    app.logger.setLevel(logging.ERROR)
     app.run(debug=True, port=os.getenv("PORT", default=5000))
