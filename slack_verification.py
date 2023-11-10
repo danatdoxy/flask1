@@ -3,6 +3,7 @@ import hashlib
 import hmac
 import time
 import logging
+import sys
 from my_classes import SlackRequestData
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
