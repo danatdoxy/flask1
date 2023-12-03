@@ -56,6 +56,7 @@ def handle_message_events(event, body, say):
     if 'text' in event:
         text = event['text']
         app.logger.info('Text: ' + text)
+        say(f"Received a message event: {text}")
         # Implement logic based on the message
 
 @app.action("button_click")
