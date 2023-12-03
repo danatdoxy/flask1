@@ -25,7 +25,8 @@ def slack_events():
 def handle_some_command(ack, body, logging, say):
     ack()  # Acknowledge the command request
     logging.info('Slash Command: summarize')
-    say("summerize")
+    logging.info(body)
+    say("summarize")
     # Implement your command logic here
     # body contains all the command information
 
