@@ -26,7 +26,7 @@ app = App(
 )
 
 flask_app = Flask(__name__)
-handler = SlackRequestHandler(app)
+handler = SlackRequestHandler(app) #notes
 openai_handler = OpenAIChatHandler(os.environ.get("openai_key"))
 slack_client = WebClient(token=os.environ.get("slack_bot_token"))
 slack_handler = SlackHandler(os.environ.get("slack_bot_token"))
