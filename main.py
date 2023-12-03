@@ -41,7 +41,7 @@ def handle_summarize_command(ack, body, say):
 @app.event("message")
 def handle_message_events(event, say):
     # Log the event
-    logging.info(f"Received a message event: {event}")
+    app.logger.info(f"Received a message event: {event}")
     # You can use `say` to send a message to the same channel
 
     if 'text' in event:
