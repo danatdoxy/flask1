@@ -60,8 +60,8 @@ def verify_slack_signature(slack_signing_secret, request_data, body):
 #     logging.info(sig_basestring)
 
     # Hash the basestring using the signing secret
-
-    my_signature = '='.join(
+    VERSION = 'v0'
+    my_signature = ':'.join(
         [VERSION, hmac.new(slack_signing_secret.encode('utf-8'), sig_basestring, hashlib.sha256).hexdigest()])
     logging.info('comparing signatures')
     logging.info(my_signature)
