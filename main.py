@@ -5,6 +5,9 @@ from slack_bolt import App
 import logging
 import sys
 import re
+from openai import OpenAI #1.1.1
+
+client = OpenAI(api_key=os.environ.get("openai_key"))
 
 # Initializes your app with your bot token and signing secret
 app = App(
@@ -15,7 +18,7 @@ app = App(
 flask_app = Flask(__name__)
 handler = SlackRequestHandler(app)
 
-
+client = src.client_key(scrapebee_api_key,openai_api_key)
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
 @flask_app.route("/slack/events", methods=["POST"])
@@ -41,6 +44,7 @@ def handle_message_events(event, say):
     # Log the event
     logging.info(f"Received a message event: {event}")
     # You can use `say` to send a message to the same channel
+    say(f"Received a message event: {event}")
     if 'text' in event:
         text = event['text']
         app.logger.info('Text: ' + text)
