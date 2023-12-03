@@ -44,7 +44,7 @@ def handle_message_events(event, say):
     # Log the event
     logging.info(f"Received a message event: {event}")
     # You can use `say` to send a message to the same channel
-    say(f"Received a message event: {event}")
+
     if 'text' in event:
         text = event['text']
         app.logger.info('Text: ' + text)
