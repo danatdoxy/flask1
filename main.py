@@ -22,8 +22,7 @@ logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
 @flask_app.route("/slack/events", methods=["POST"])
 def slack_events():
-    flask_app.logger.info('Handling request')
-    flask_app.logger.info(request)
+    flask_app.logger.info(f'Handling request: {request}')
     return handler.handle(request)
 
 @app.command("/summarize")
@@ -55,6 +54,7 @@ def handle_button_clicks(body, ack, say):
     # Implement your logic for button click
     say(f"Button clicked!")
 
+@app.event("app_home_opened")
 def handle_app_home_opened(event, client):
     user_id = event['user']
     try:
