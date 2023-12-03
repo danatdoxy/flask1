@@ -55,13 +55,76 @@ def handle_button_clicks(body, ack, say):
     # Implement your logic for button click
     say(f"Button clicked!")
 
-@app.event("app_home_opened")
 def handle_app_home_opened(event, client):
-    # Handle the app home opened event
     user_id = event['user']
     try:
         logging.info(f"Received {user_id} app_home_opened event: {event}")
-        # Update the App Home for the user
+
+        # Construct the view payload
+        view_payload = {
+            "type": "home",
+            "blocks": [
+                {
+                    "type": "section",
+                    "block_id": "r++V0",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": "Jarvis is an experimental internal tool for <http://doxy.me|doxy.me>\n\n *What you can do with Jarvis in the future:*",
+                        "verbatim": False,
+                    },
+                },
+                {"type": "divider", "block_id": "jxKR4"},
+                {
+                    "type": "section",
+                    "block_id": "g6fCh",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": "*Summerize Threads*\nSometimes conversations can get really lengthy. The /summerize command is a tool that makes it easy to get the inside scope without spending any more time than you need to getting caught up.",
+                        "verbatim": False,
+                    },
+                    "accessory": {
+                        "type": "image",
+                        "image_url": "https://v5.airtableusercontent.com/v2/22/22/1698472800000/aCVNL0hu5rImksqRW9kchg/MrxWegGU2OEiBhqvPjFsn6FdtDQTrQMyXE76uo_cmrcGY1dKpHzY8WyUAw1qqIBDVGSK642yuuiO9OAVPB716jR83cgusKzU1Li2Ji900g_AtR4malMVwLWLxm_a-r8nS0dOuThwK1523x6osciRFQ/LPTpghQkzJeBPH0iZ61GoVzVOO-QlNs57fUYQemoIwo",
+                        "alt_text": "alt text for image",
+                    },
+                },
+                {
+                    "type": "section",
+                    "block_id": "g7jBH",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": "*Use GPT 4*\nAlthough not as amazing as ChatGPT you can use the same exact Language Model that powers chatGPT right from slack.",
+                        "verbatim": False,
+                    },
+                    "accessory": {
+                        "type": "image",
+                        "image_url": "https://v5.airtableusercontent.com/v2/22/22/1698472800000/v-jHcvYc7fdKeZZRTEozIw/I0Ppt_NTRg8M7O-04Jxbowy0Yu4VqbzYGVkeD6-jWXYFjFdRqkhMKrGffDmUr44qi5KeOkZuiAO2AlfQMLzFdQl0hfEd-g4mr0PuIMS6yKlhJqOBCYeHW-8o8gAHSCmpkgEnlFL3jySAWh6G6E6woQ/jEKMhYtG0WPmCWzc1EQTXnA8z4S_CrVAg3Qre6Ld6yM",
+                        "alt_text": "alt text for image",
+                    },
+                },
+                {
+                    "type": "section",
+                    "block_id": "mMY6L",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": "*Get Data Insights*\nAsk questions about <http://doxy.me|doxy.me> data and get answers quickly and powerfully. This is powered by snowflake and OpenAI's GPT models",
+                        "verbatim": False,
+                    },
+                    "accessory": {
+                        "type": "image",
+                        "image_url": "https://v5.airtableusercontent.com/v2/22/22/1698472800000/h-TK5jOQ_101PIUUzyrD2A/QAo0EN8hutVTzpURaQRjxulxUwk811601zxKMYWTYeYuGeDzPls0Df6YlR2owKx5PK3ev0bNuDkNL6GIE_20FllTLBdYlvoo_ERgTMUBi_a6WxurudkESjSEf0qbxMsWVyT2Ewb7hNDUuYFXMUUa-w/0glrNa9vNvOTbCLJXwdls-5yCNVILaXkDcgB0RvkH5M",
+                        "alt_text": "alt text for image",
+                    },
+                },
+            ],
+        }
+
+        # Publish the view to the App Home
+        client.views_publish(
+            user_id=user_id,
+            view=view_payload
+        )
+
     except Exception as e:
         logging.error(f"Error updating App Home: {e}")
 @app.event({"type": re.compile(r".*")})
