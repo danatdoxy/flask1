@@ -6,7 +6,6 @@ import logging
 import sys
 from my_classes import SlackRequestData
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
-
 import hmac
 import hashlib
 import time
@@ -25,7 +24,7 @@ def verify_slack_signature(slack_signing_secret, request_data, body):
         return False
 
     sig_basestring = ':'.join(['v0', slack_request_timestamp, body]).encode('utf-8')
-    my_signature = 'v0=' + hmac.new(slack_signing_secret.encode('utf-8'), sig_basestring, hashlib.sha256).hexdigest()
+    my_signature = 'v0:' + hmac.new(slack_signing_secret.encode('utf-8'), sig_basestring, hashlib.sha256).hexdigest()
 
     logging.info(f"Generated signature: {my_signature}")
     logging.info(f"Slack signature: {slack_signature}")
