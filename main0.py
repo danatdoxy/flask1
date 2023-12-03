@@ -2,7 +2,7 @@ from flask import Flask, jsonify, request, abort
 import os
 from router import handle_slash_command
 from my_classes import SlackRequestData
-from slack_verification import verify_slack_signature
+from slack_verification import OpenAIChatHandler
 import logging
 import sys
 import json

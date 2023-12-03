@@ -2,7 +2,9 @@ from flask import Flask, jsonify, request
 import os
 from slack_bolt.adapter.flask import SlackRequestHandler
 from slack_bolt import App
-import logging
+from slack_sdk import WebClient
+
+from slack_verification import OpenAIChatHandler, SlackHandler
 import sys
 import re
 from openai import OpenAI #1.1.1
@@ -25,6 +27,9 @@ app = App(
 
 flask_app = Flask(__name__)
 handler = SlackRequestHandler(app)
+openai_handler = OpenAIChatHandler(os.environ.get("openai_key"))
+slack_client = WebClient(token=os.environ.get("slack_bot_token"))
+slack_handler = SlackHandler(os.environ.get("slack_bot_token"))
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
@@ -47,17 +52,30 @@ def handle_summarize_command(ack, body, say):
         logger.error(f"Error in summarize command: {e}")
 
 @app.event("message")
-def handle_message_events(event, body, say):
-    # Log the event
-    logger.info(f"Received a message event: {body}")
-    logger.info(f"Received a message event: {event}")
-    # You can use `say` to send a message to the same channel
+def handle_message_events(body, say, event):
+    user_id = event.get('user')
+    channel_id = event.get('channel')
+    thread_ts = event.get('thread_ts', None)  # Thread timestamp
+    bot_id = event.get('bot_id', None)  # Bot ID to prevent self-response
 
-    if 'text' in event:
-        text = event['text']
-        app.logger.info('Text: ' + text)
-        say(f"Received a message event: {text}")
-        # Implement logic based on the message
+    # Skip if the message is from the bot itself
+    if bot_id:
+        return
+
+    # Extract text from the event
+    text = event.get('text', '')
+
+    if thread_ts:
+        # It's a threaded message, handle accordingly
+        thread_history = slack_handler.get_thread_history(channel_id, thread_ts)
+        chat_array = slack_handler.build_chat_array(thread_history)
+        response = openai_handler.send_thread_to_openai(chat_array)
+        slack_client.chat_postMessage(channel=channel_id, thread_ts=thread_ts, text=response)
+    else:
+        # It's a new message, handle as a single message
+        response = openai_handler.send_message_to_openai(event)
+        say(response)  # or use slack_client.chat_postMessage for more control
+
 
 @app.action("button_click")
 def handle_button_clicks(body, ack, say):
