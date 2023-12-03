@@ -5,6 +5,7 @@ from my_classes import SlackRequestData
 from slack_verification import verify_slack_signature
 import logging
 import sys
+import json
 
 app = Flask(__name__)
 secret = os.environ.get('slack_signing_secret')
@@ -13,12 +14,16 @@ logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
 @app.route('/', methods=['POST'])
 def handle_request():
-    logging.info('Handling request. my sig:')
-    logging.info(secret)
+    logging.info(f'Handling request. my sig: {secret}')
     inbound_data = SlackRequestData(request.form, request.headers)
     # The body of the request needs to be obtained from request.get_data() or similar
     body = request.get_data(as_text=True)  # Get the raw body of the request
-    # print(inbound_data.to_dict())
+    logging.info('Class inbound data')
+    logging.info(inbound_data.json())
+    logging.info('Raw body')
+    logging.info(body)
+    #print(inbound_data.to_dict())
+
 
     logging.info('Sending payload to Verifying signature')
     logging.info('x-slack-signature: ' + inbound_data.signature)
