@@ -18,7 +18,6 @@ app = App(
 flask_app = Flask(__name__)
 handler = SlackRequestHandler(app)
 
-client = src.client_key(scrapebee_api_key,openai_api_key)
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
 @flask_app.route("/slack/events", methods=["POST"])
