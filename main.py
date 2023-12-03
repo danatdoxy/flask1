@@ -15,20 +15,26 @@ app = App(
 flask_app = Flask(__name__)
 handler = SlackRequestHandler(app)
 
+
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
 @flask_app.route("/slack/events", methods=["POST"])
 def slack_events():
+    flask_app.logger.info('Handling request')
+    flask_app.logger.info(request)
     return handler.handle(request)
 
 @app.command("/summarize")
-def handle_some_command(ack, body, logging, say):
-    ack()  # Acknowledge the command request
-    logging.info('Slash Command: summarize')
-    logging.info(body)
-    say("summarize")
-    # Implement your command logic here
-    # body contains all the command information
+def handle_summarize_command(ack, body, say):
+    ack()  # Acknowledge the command request immediately
+    try:
+        app.logger.info('Slash Command: summarize')
+        app.logger.info(body)
+        say("Processing summarize command...")  # Respond to the user
+        # Implement your command logic here
+        # body contains all the command information
+    except Exception as e:
+        app.logger.error(f"Error in summarize command: {e}")
 
 @app.event("message")
 def handle_message_events(event, say):
@@ -37,7 +43,7 @@ def handle_message_events(event, say):
     # You can use `say` to send a message to the same channel
     if 'text' in event:
         text = event['text']
-        logging('Text: ' + text)
+        app.logger.info('Text: ' + text)
         # Implement logic based on the message
 
 @app.action("button_click")
