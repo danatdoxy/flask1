@@ -129,7 +129,7 @@ def handle_app_home_opened(event, client):
         app.logger.error(f"Error updating App Home: {e}")
 @app.event({"type": re.compile(r".*")})
 def handle_all_events(payload, say, logging):
-    logging.info(f"Received event: {payload}")
+    app.logger.info(f"Received event: {payload}")
 
 @flask_app.route('/')
 def index():
