@@ -6,6 +6,14 @@ import logging
 import sys
 import re
 from openai import OpenAI #1.1.1
+import logging
+
+# Set up logging
+logger = logging.getLogger('slack_app') #the getLogger() method returns a logger with the specified name if it exists already, or creates it.
+logger.setLevel(logging.INFO) #set the logging level of this logger to INFO
+stream_handler = logging.StreamHandler(sys.stdout)
+stream_handler.setLevel(logging.INFO)
+logger.addHandler(stream_handler)
 
 client = OpenAI(api_key=os.environ.get("openai_key"))
 
@@ -22,27 +30,27 @@ logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
 @flask_app.route("/slack/events", methods=["POST"])
 def slack_events():
-    flask_app.logger.info(f'Handling request: {request}')
-    flask_app.logger.info(f'Handling request data: {request.data}')
+    logger.info(f'Handling request: {request}')
+    logger.info(f'Handling request data: {request.data}')
     return handler.handle(request)
 
 @app.command("/summarize")
 def handle_summarize_command(ack, body, say):
     ack()  # Acknowledge the command request immediately
     try:
-        app.logger.info('Slash Command: summarize')
-        app.logger.info(body)
+        logger.info('Slash Command: summarize')
+        logger.info(body)
         say("Processing summarize command...")  # Respond to the user
         # Implement your command logic here
         # body contains all the command information
     except Exception as e:
-        app.logger.error(f"Error in summarize command: {e}")
+        logger.error(f"Error in summarize command: {e}")
 
 @app.event("message")
 def handle_message_events(event, body, say):
     # Log the event
-    app.logger.info(f"Received a message event: {body}")
-    app.logger.info(f"Received a message event: {event}")
+    logger.info(f"Received a message event: {body}")
+    logger.info(f"Received a message event: {event}")
     # You can use `say` to send a message to the same channel
 
     if 'text' in event:
@@ -60,7 +68,7 @@ def handle_button_clicks(body, ack, say):
 def handle_app_home_opened(event, client):
     user_id = event['user']
     try:
-        app.logger.info(f"Received {user_id} app_home_opened event: {event}")
+        logger.info(f"Received {user_id} app_home_opened event: {event}")
 
         # Construct the view payload
         view_payload = {
@@ -128,16 +136,14 @@ def handle_app_home_opened(event, client):
         )
 
     except Exception as e:
-        app.logger.error(f"Error updating App Home: {e}")
+        logger.error(f"Error updating App Home: {e}")
 @app.event({"type": re.compile(r".*")})
 def handle_all_events(payload):
-    app.logger.info(f"Received event: {payload}")
+    logger.info(f"Received event: {payload}")
 
 @flask_app.route('/')
 def index():
     return jsonify({"Choo Choo": "Welcome to your Flask app 🚅"})
 
 if __name__ == '__main__':
-    flask_app.logger.addHandler(logging.StreamHandler(sys.stdout))
-    flask_app.logger.setLevel(logging.ERROR)
     flask_app.run(debug=True, port=os.getenv("PORT", default=5000))
