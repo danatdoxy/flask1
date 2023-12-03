@@ -19,7 +19,7 @@ def handle_request():
     # The body of the request needs to be obtained from request.get_data() or similar
     body = request.get_data(as_text=True)  # Get the raw body of the request
     logging.info('Class inbound data')
-    logging.info(inbound_data.json())
+    logging.info(inbound_data.to_dict())
     logging.info('Raw body')
     logging.info(body)
     #print(inbound_data.to_dict())
