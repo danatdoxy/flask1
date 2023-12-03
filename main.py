@@ -58,7 +58,7 @@ def handle_button_clicks(body, ack, say):
 def handle_app_home_opened(event, client):
     user_id = event['user']
     try:
-        logging.info(f"Received {user_id} app_home_opened event: {event}")
+        app.logger.info(f"Received {user_id} app_home_opened event: {event}")
 
         # Construct the view payload
         view_payload = {
@@ -126,7 +126,7 @@ def handle_app_home_opened(event, client):
         )
 
     except Exception as e:
-        logging.error(f"Error updating App Home: {e}")
+        app.logger.error(f"Error updating App Home: {e}")
 @app.event({"type": re.compile(r".*")})
 def handle_all_events(payload, say, logging):
     logging.info(f"Received event: {payload}")
