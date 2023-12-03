@@ -23,6 +23,7 @@ logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 @flask_app.route("/slack/events", methods=["POST"])
 def slack_events():
     flask_app.logger.info(f'Handling request: {request}')
+    flask_app.logger.info(f'Handling request data: {request.data}')
     return handler.handle(request)
 
 @app.command("/summarize")
@@ -38,8 +39,9 @@ def handle_summarize_command(ack, body, say):
         app.logger.error(f"Error in summarize command: {e}")
 
 @app.event("message")
-def handle_message_events(event, say):
+def handle_message_events(event, body, say):
     # Log the event
+    app.logger.info(f"Received a message event: {body}")
     app.logger.info(f"Received a message event: {event}")
     # You can use `say` to send a message to the same channel
 
