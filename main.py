@@ -21,9 +21,10 @@ logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 def slack_events():
     return handler.handle(request)
 
-@app.command("/summerize")
+@app.command("/summarize")
 def handle_some_command(ack, body, logger):
     ack()  # Acknowledge the command request
+    logging.info('Slash Command: summarize')
     # Implement your command logic here
     # body contains all the command information
 
