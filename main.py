@@ -1,46 +1,66 @@
-from flask import Flask, jsonify, request, abort
+from flask import Flask, jsonify, request
 import os
-from router import handle_slash_command
-from my_classes import SlackRequestData
-from slack_verification import verify_slack_signature
+from slack_bolt.adapter.flask import SlackRequestHandler
+from slack_bolt import App
 import logging
 import sys
-import json
+import re
 
-app = Flask(__name__)
-secret = os.environ.get('slack_signing_secret')
+# Initializes your app with your bot token and signing secret
+app = App(
+    token=os.environ.get("slack_bot_token"),
+    signing_secret=os.environ.get("slack_signing_secret")
+)
+
+flask_app = Flask(__name__)
+handler = SlackRequestHandler(app)
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
-@app.route('/', methods=['POST'])
-def handle_request():
-    logging.info(f'Handling request. my sig: {secret}')
-    inbound_data = SlackRequestData(request.form, request.headers)
-    # The body of the request needs to be obtained from request.get_data() or similar
-    body = request.get_data().decode('utf-8')
-    logging.info('Class inbound data')
-    logging.info(inbound_data.to_dict())
-    logging.info('Raw body')
-    logging.info(body)
-    #print(inbound_data.to_dict())
+@flask_app.route("/slack/events", methods=["POST"])
+def slack_events():
+    return handler.handle(request)
 
+@app.command("/summerize")
+def handle_some_command(ack, body, logger):
+    ack()  # Acknowledge the command request
+    # Implement your command logic here
+    # body contains all the command information
 
-    logging.info('Sending payload to Verifying signature')
-    logging.info('x-slack-signature: ' + inbound_data.signature)
-    # Pass the secret, the inbound_data object, and the raw body to the verification function
-    if not verify_slack_signature(secret, inbound_data, body):
-        logging.info('Signature verification failed')
-        abort(403)  # Forbidden if the signature verification fails
+@app.event("message")
+def handle_message_events(event, say):
+    # Log the event
+    logging.info(f"Received a message event: {event}")
+    # You can use `say` to send a message to the same channel
+    if 'text' in event:
+        text = event['text']
+        logging('Text: ' + text)
+        # Implement logic based on the message
 
-    # Handle the slash command
-    return jsonify({"status": "success"})
+@app.action("button_click")
+def handle_button_clicks(body, ack, say):
+    ack()  # Acknowledge button click event
+    # Implement your logic for button click
+    say(f"Button clicked!")
 
-@app.route('/')
+@app.event("app_home_opened")
+def handle_app_home_opened(event, client):
+    # Handle the app home opened event
+    user_id = event['user']
+    try:
+        logging.info(f"Received {user_id} app_home_opened event: {event}")
+        # Update the App Home for the user
+    except Exception as e:
+        logging.error(f"Error updating App Home: {e}")
+@app.event({"type": re.compile(r".*")})
+def handle_all_events(payload, say, logging):
+    logging.info(f"Received event: {payload}")
+
+@flask_app.route('/')
 def index():
     return jsonify({"Choo Choo": "Welcome to your Flask app 🚅"})
 
-
 if __name__ == '__main__':
-    app.logger.addHandler(logging.StreamHandler(sys.stdout))
-    app.logger.setLevel(logging.ERROR)
-    app.run(debug=True, port=os.getenv("PORT", default=5000))
+    flask_app.logger.addHandler(logging.StreamHandler(sys.stdout))
+    flask_app.logger.setLevel(logging.ERROR)
+    flask_app.run(debug=True, port=os.getenv("PORT", default=5000))
