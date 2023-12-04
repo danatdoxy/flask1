@@ -36,7 +36,7 @@ logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 @flask_app.route("/slack/events", methods=["POST"])
 def slack_events():
     logger.info(f'Handling request: {request}')
-    logger.info(f'Handling request data: {request.data}')
+    logger.info(f'Full request data: {request.get_data(as_text=True)}')  # Log the full raw request data
     return handler.handle(request)
 
 @app.command("/summarize")
