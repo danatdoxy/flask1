@@ -49,25 +49,32 @@ class SlackHandler:
         self.client = WebClient(token=token)
 
     def get_thread_history(self, channel: str, thread_ts: str):
-        logging.info('Setting messaging history')
+        logging.info('Fetching messaging history')
         messages = []
         try:
-            # Initial call to conversations.replies
             response = self.client.conversations_replies(channel=channel, ts=thread_ts, limit=200)
-            messages.extend(response['messages'])
 
-            # Loop through pagination if more messages are available
-            while response['response_metadata']['next_cursor']:
-                response = self.client.conversations_replies(
-                    channel=channel,
-                    ts=thread_ts,
-                    cursor=response['response_metadata']['next_cursor'],
-                    limit=200
-                )
+            # Add a check for response and response_metadata
+            if response and 'messages' in response:
                 messages.extend(response['messages'])
+
+                while 'response_metadata' in response and 'next_cursor' in response['response_metadata']:
+                    next_cursor = response['response_metadata']['next_cursor']
+                    if not next_cursor:  # Check if next_cursor is empty
+                        break
+
+                    response = self.client.conversations_replies(
+                        channel=channel,
+                        ts=thread_ts,
+                        cursor=next_cursor,
+                        limit=200
+                    )
+                    if 'messages' in response:
+                        messages.extend(response['messages'])
 
         except SlackApiError as e:
             logging.error(f"Error fetching conversation replies: {e.response['error']}")
+
         return messages
 
     def post_message(self, channel: str, thread_ts: str, message: str):
