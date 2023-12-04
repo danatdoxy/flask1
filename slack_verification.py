@@ -30,7 +30,7 @@ class OpenAIChatHandler:
         )
 
         # Return the OpenAI response
-        return completion.choices[0].message
+        return completion.choices[0].message.content
 
     def send_thread_to_openai(self, chat_array):
         # Send the messages to OpenAI and get the response
