@@ -52,26 +52,26 @@ def handle_summarize_command(ack, body, say):
         logger.error(f"Error in summarize command: {e}")
 
 
-@app.shortcut("summarize-thread")
-def handle_summarize_shortcut(ack, body, client, logger):
-    ack()  # Acknowledge the shortcut request immediately
+@app.action("summerize-thread")
+def handle_summarize_thread(ack, body, client, logger):
+    ack()  # Acknowledge the message action request immediately
     try:
-        logger.info('Shortcut: summarize-thread')
+        logger.info('Message Action: summarize-thread')
         logger.info(body)
 
         # Fetch necessary details from body
         channel_id = body['channel']['id']
-        message_ts = body['message']['ts']  # Timestamp of the message where the shortcut was triggered
+        message_ts = body['message_ts']  # Timestamp of the message where the action was triggered
 
         # You can use these details to retrieve the thread and process it
 
         # For example, let's just post a confirmation message
-        client.chat_postMessage(channel=channel_id, text="Processing summarize shortcut...")
+        client.chat_postMessage(channel=channel_id, text="Processing summarize message action...")
 
         # Implement your summarize logic here
         # Use channel_id and message_ts to identify the thread
     except Exception as e:
-        logger.error(f"Error in summarize-thread shortcut: {e}")
+        logger.error(f"Error in summarize-thread message action: {e}")
 @app.event("message")
 def handle_message_events(body, say, event):
     user_id = event.get('user')
