@@ -52,7 +52,7 @@ def handle_summarize_command(ack, body, say):
         logger.error(f"Error in summarize command: {e}")
 
 
-@app.action("summerize-thread")
+@app.shortcut('summerize-thread')
 def handle_summarize_thread(ack, body, client, logger):
     ack()  # Acknowledge the message action request immediately
     try:
