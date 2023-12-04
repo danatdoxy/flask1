@@ -113,6 +113,7 @@ class SlackHandler:
             # Join combined_messages array into a single string
             combined_messages_string = "\n".join(combined_messages)
             chat_array.append({"role": "user", "content": combined_messages_string})
+            logging.info(f'Chat array built as string:\n {chat_array}')
 
         else:
             for message in messages:
@@ -122,5 +123,6 @@ class SlackHandler:
                     chat_array.append({"role": role, "content": text})
                 except Exception as e:
                     logging.error(f"Error processing message: {e}")
+            logging.info(f'Chat array built as user/assistant message array')
 
         return chat_array
