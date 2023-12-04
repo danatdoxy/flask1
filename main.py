@@ -55,27 +55,23 @@ def handle_summarize_command(ack, body, say):
 def handle_message_events(body, say, event):
     user_id = event.get('user')
     channel_id = event.get('channel')
-    thread_ts = event.get('thread_ts', None)  # Thread timestamp
-    bot_id = event.get('bot_id', None)  # Bot ID to prevent self-response
+    thread_ts = event.get('thread_ts', None)
+    bot_id = event.get('bot_id', None)
 
-    # Skip if the message is from the bot itself
     if bot_id:
         return
 
-    # Extract text from the event
     text = event.get('text', '')
 
-    if thread_ts:
-        # It's a threaded message, handle accordingly
-        thread_history = slack_handler.get_thread_history(channel_id, thread_ts)
-        chat_array = slack_handler.build_chat_array(thread_history)
-        response = openai_handler.send_thread_to_openai(chat_array)
-        slack_client.chat_postMessage(channel=channel_id, thread_ts=thread_ts, text=response)
-    else:
-        # It's a new message, handle as a single message
-        response = openai_handler.send_message_to_openai(event)
-        say(response)  # or use slack_client.chat_postMessage for more control
+    if not thread_ts:
+        # If it's a new message, set thread_ts to the timestamp of this message
+        thread_ts = event.get('ts')
 
+    # Handle as a threaded message
+    thread_history = slack_handler.get_thread_history(channel_id, thread_ts)
+    chat_array = slack_handler.build_chat_array(thread_history)
+    response = openai_handler.send_thread_to_openai(chat_array)
+    slack_client.chat_postMessage(channel=channel_id, thread_ts=thread_ts, text=response)
 
 @app.action("button_click")
 def handle_button_clicks(body, ack, say):
