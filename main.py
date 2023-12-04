@@ -63,13 +63,17 @@ def handle_summarize_thread(ack, body, client, logger):
         channel_id = body['channel']['id']
         message_ts = body['message_ts']  # Timestamp of the message where the action was triggered
 
-        # You can use these details to retrieve the thread and process it
+        # Retrieve all the threads for the ts
+        thread_history = slack_handler.get_thread_history(channel_id, message_ts)
+        chat_array = slack_handler.build_chat_array(thread_history, system_message="Summarize the user's Slack conversation thread", as_string=True)
 
-        # For example, let's just post a confirmation message
-        client.chat_postMessage(channel=channel_id, text="Processing summarize message action...")
 
-        # Implement your summarize logic here
-        # Use channel_id and message_ts to identify the thread
+        # Send the combined messages to OpenAI and get the response
+        summary = openai_handler.send_thread_to_openai(chat_array)
+
+        # Post the summary as an ephemeral message
+        client.chat_postEphemeral(channel=channel_id, user=body['user']['id'], text=summary)
+
     except Exception as e:
         logger.error(f"Error in summarize-thread message action: {e}")
 @app.event("message")

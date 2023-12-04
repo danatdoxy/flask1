@@ -84,28 +84,43 @@ class SlackHandler:
         except SlackApiError as e:
             logging.error(f"Error posting message: {e.response['error']}")
 
-    def build_chat_array(self, messages):
-        """
-        Builds an array of chat messages formatted for OpenAI input.
-
-        Parameters:
-        messages (list): A list of message dicts from Slack.
-
-        Returns:
-        list: A list of formatted chat messages for OpenAI.
-        """
+    def build_chat_array(self, messages, system_message="You are a helpful assistant.", as_string=False):
         logging.info('Building chat array')
 
         # Define the initial system message
-        chat_array = [{"role": "system", "content": "You are a helpful assistant."}]
+        chat_array = [{"role": "system", "content": system_message}]
 
-        # Append user or assistant messages based on whether it's a bot message
-        for message in messages:
-            try:
-                role = "assistant" if message.get("subtype") == "bot_message" else "user"
-                text = message.get("text", "")
-                chat_array.append({"role": role, "content": text})
-            except Exception as e:
-                logging.error(f"Error processing message: {e}")
+        if as_string:
+            combined_messages = []
+            real_name_index = {}  # Use a dictionary for efficient lookup
+
+            for message in messages:
+                user_id = message.get("user", "")
+                if user_id not in real_name_index:
+                    # Get the user's real name from the users.info API
+                    user_info = self.client.users_info(user=user_id)
+                    real_name = user_info.get("user", {}).get("real_name", user_id)  # Default to user_id if real_name not found
+                    real_name_index[user_id] = real_name
+                else:
+                    real_name = real_name_index[user_id]
+
+                try:
+                    text = message.get("text", "")
+                    combined_messages.append(f"{real_name}: {text}")
+                except Exception as e:
+                    logging.error(f"Error processing message: {e}")
+
+            # Join combined_messages array into a single string
+            combined_messages_string = "\n".join(combined_messages)
+            chat_array.append({"role": "user", "content": combined_messages_string})
+
+        else:
+            for message in messages:
+                try:
+                    role = "assistant" if message.get("subtype") == "bot_message" else "user"
+                    text = message.get("text", "")
+                    chat_array.append({"role": role, "content": text})
+                except Exception as e:
+                    logging.error(f"Error processing message: {e}")
 
         return chat_array
