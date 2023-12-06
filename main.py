@@ -60,11 +60,17 @@ def handle_summarize_thread(ack, body, client, logger):
         logger.info(body)
 
         # Fetch necessary details from body
+        #channel id of the message
         channel_id = body['channel']['id']
-        message_ts = body['message_ts']  # Timestamp of the message where the action was triggered
+
+        #ts of the message. If the event is on a thread, this will be the ts of the parent message
+        parent_ts = body['message']['ts']
+        message_ts = body['message_ts'] #this is the ts of the message that the action was invoked on
+
+
 
         # Retrieve all the threads for the ts
-        thread_history = slack_handler.get_thread_history(channel_id, message_ts)
+        thread_history = slack_handler.get_thread_history(channel_id, parent_ts)
         chat_array = slack_handler.build_chat_array(thread_history, system_message="Summarize the user's Slack conversation thread", as_string=True)
 
 
