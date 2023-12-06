@@ -36,7 +36,7 @@ class OpenAIChatHandler:
         # Send the messages to OpenAI and get the response
         logging.info('Sending thread to openai')
         completion = self.client.chat.completions.create(
-            model="gpt-3.5-turbo",
+            model="gpt-4",
             messages=chat_array
         )
         # Access the 'content' attribute directly from the 'message' object
@@ -77,10 +77,14 @@ class SlackHandler:
 
         return messages
 
-    def post_message(self, channel: str, thread_ts: str, message: str):
+    def post_thread_message(self, channel: str, thread_ts: str, message: str, ephemeral: bool = False, user_id: str = None): # This function will post a message to a thread either as a user or as an ephemeral message
         logging.info('Sending message to slack')
         try:
-            self.client.chat_postMessage(channel=channel, thread_ts=thread_ts, text=message)
+            if ephemeral:
+                self.client.chat_postEphemeral(channel=channel, user=user_id, text=message, thread_ts=thread_ts)
+            else:
+                self.client.chat_postMessage(channel=channel, thread_ts=thread_ts, text=message) #A message will be posted to the thread
+
         except SlackApiError as e:
             logging.error(f"Error posting message: {e.response['error']}")
 
@@ -98,9 +102,12 @@ class SlackHandler:
                 user_id = message.get("user", "")
                 if user_id not in real_name_index:
                     # Get the user's real name from the users.info API
-                    user_info = self.client.users_info(user=user_id)
-                    real_name = user_info.get("user", {}).get("real_name", user_id)  # Default to user_id if real_name not found
-                    real_name_index[user_id] = real_name
+                    try:
+                        user_info = self.client.users_info(user=user_id)
+                        real_name = user_info.get("user", {}).get("real_name", user_id)  # Default to user_id if real_name not found
+                        real_name_index[user_id] = real_name
+                    except SlackApiError as e: # If the user is a bot, the users.info API will return an error. So we'll just call it "Bot"
+                        real_name_index[user_id] = "Bot"
                 else:
                     real_name = real_name_index[user_id]
 

@@ -72,7 +72,8 @@ def handle_summarize_thread(ack, body, client, logger):
         summary = openai_handler.send_thread_to_openai(chat_array)
 
         # Post the summary as an ephemeral message
-        client.chat_postEphemeral(channel=channel_id, user=body['user']['id'], text=summary)
+        #client.chat_postEphemeral(channel=channel_id, user=body['user']['id'], text=summary)
+        slack_handler.post_thread_message(channel_id, message_ts, summary, ephemeral=True, user_id=body['user']['id'])
 
     except Exception as e:
         logger.error(f"Error in summarize-thread message action: {e}")
