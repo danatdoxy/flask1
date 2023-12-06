@@ -64,7 +64,7 @@ def handle_summarize_thread(ack, body, client, logger):
         channel_id = body['channel']['id']
 
         #ts of the message. If the event is on a thread, this will be the ts of the parent message
-        parent_ts = body['message']['ts']
+        parent_ts = body['thread_ts']
         message_ts = body['message_ts'] #this is the ts of the message that the action was invoked on
 
 
